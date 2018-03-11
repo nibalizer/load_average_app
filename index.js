@@ -7,40 +7,10 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var tmi = require('tmi.js');
-var ToneAnalyzerV3 = require('watson-developer-cloud/tone-analyzer/v3');
-
-// Setup Watson Tone Analyzer
-var tone_analyzer = new ToneAnalyzerV3({
-  username: config.watson.username,
-  password: config.watson.password,
-  version_date: config.watson.version_date,
-});
-
-// Set up options for connection to twitch chat
-// Add channels in the config.json file
-var tmi_options = {
-  options: {
-    debug: true
-  },
-  connection: {
-    cluster: "aws",
-    reconnect: true
-  },
-  identity: config.twitch_identity,
-  channels: config.twitch_channels
-};
-
-// Connect to twitch
-var client = new tmi.client(tmi_options);
-client.connect();
-
-// Emit hello world announcement on first chat connection
-client.on('connected', function(address, port) {
-  client.action(config.twitch_channels[0], "Hello World");
-});
+var fs = require('fs');
 
 
+var load_avg = "dummy";
 
 // Serve any files in the 'vendor' directory as static resources
 // This is where js libraries for the client are stored
@@ -51,13 +21,21 @@ app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
 
-app.get('/anger', function(req, res){
-  res.sendFile(__dirname + '/anger.html');
+app.get('/load_number', function(req, res){
+  res.send(load_avg);
+});
+
+app.get('/load_number_animated', function(req, res){
+  res.sendFile(__dirname + '/load_number_animated.html');
+});
+
+app.get('/load_graph', function(req, res){
+  res.sendFile(__dirname + '/load_graph.html');
 });
 
 // Start the web server on port 3000
-http.listen(3000, function(){
-  console.log('listening on *:3000');
+http.listen(3001, function(){
+  console.log('listening on *:3001');
 });
 
 // Setup a websocket with any web client that connects
@@ -66,21 +44,16 @@ io.on('connection', function(socket){
   socket.on('disconnect', function(){
     console.log('user disconnected');
   });
-  socket.on('chat message', function(msg){
-    io.emit('chat message', msg);
-  });
 });
 
+setInterval( function() {
+  fs.readFile('/proc/loadavg', {encoding: 'utf-8'}, function(err,data){
+    console.log(data);
+    load_1min = parseFloat(data.split(" ")[0]);
+    resp = {}
+    resp["load_1min"] = load_1min
 
-// When a chat message comes in, process it with watson tone analysis
-// and send that to any clients connected via websockets
-// This is the meat of the proram
-client.on('chat', function(channel, user, message, self) {
-  tone_analyzer.tone({ text: message },
-  function(err, tone) {
-    if (err)
-      console.log(err);
-    else
-      io.emit('chat message', tone['document_tone']);
+    load_avg = data;
+    io.emit('chat message', resp);
   });
-});
+}, 1000);
