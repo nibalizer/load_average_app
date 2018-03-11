@@ -54,6 +54,6 @@ setInterval( function() {
     resp["load_1min"] = load_1min
 
     load_avg = data;
-    io.emit('chat message', resp);
+    io.emit('timeseries data', resp);
   });
 }, 1000);
