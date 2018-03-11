@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="js/jquery-3.2.1.min.js"> </script>
+  </head>
+  <body>
+    <h2 id="data">hi</h2>
+     <script type="text/javascript">
+     setInterval(function() {
+       $.get('/load_number', function(data){
+         $("#data").text(data);
+       });
+     }, 1000);
+     </script>
+  </body>
+</html>
