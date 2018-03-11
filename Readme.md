@@ -1,11 +1,15 @@
-# Twitch Chat Tone Analysis
+# Load Average animations
 
-This is an example application that uses the twitch api, the watson api, socket.io, and rickshaw. It shows the tone of twitch chat accross several tone groups. Using this, a streamer can get a sense of the mood and feeling of chat at a glance.
-
-This also demonstrates using the watson api, the twitch api, and websockets.
+This is some simple examples around showing unix load. Several example routes show the load average different ways. This is used to show off browser sources in OBS.
 
 
-![Tone Analysis Screenshot](watson-twitch-tone-analysis.png)
+### Cool Routes
+
+
+* /load_number
+* /load_number_animated
+* /load_graph
+
 
 
 ## Installation
@@ -35,3 +39,5 @@ vim config.json
 ```shell
 node index.js
 ```
+
+
